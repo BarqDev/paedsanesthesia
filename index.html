@@ -31,21 +31,30 @@
     }
 
     function parseSheetData(values) {
-        const [heroData, questionData, caseData] = [[], null, null];
+        const heroData = [];
+        let questionData = null;
+        let caseData = null;
 
         values.forEach(row => {
-            if (row[0]) { // Hero row
+            if (row[0]) {
+                // Hero slide data
                 heroData.push({
                     title: row[0],
-                    content: row[1],
-                    gradientClass: row[2],
+                    content: row[1] || "",
+                    gradientClass: row[2] || "gradient-1", // Default gradient class
                 });
-            } else if (row[3]) { // Question row
+            }
+
+            if (row[3] && row[4]) {
+                // Question data
                 questionData = {
                     title: row[3],
-                    options: row[4] ? row[4].split("\n") : [],
+                    options: row[4].split("\n"),
                 };
-            } else if (row[5]) { // Case row
+            }
+
+            if (row[5] && row[6] && row[7]) {
+                // Case data
                 caseData = {
                     title: row[5],
                     content: row[6],
@@ -111,6 +120,7 @@
 
     document.addEventListener("DOMContentLoaded", fetchSheetData);
 </script>
+
 
     <style>
         .gradient-spotlight {
