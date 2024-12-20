@@ -8,52 +8,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
     <script>
-        // Global content definitions
-        window.siteContent = {
-            hero: [
-                {
-                    title: "We Serve Every Patient With Care",
-                    content: "Providing compassionate and specialized anesthesia services",
-                    gradientClass: "gradient-1"
-                },
-                {
-                    title: "24/7 Professional Care",
-                    content: "Round-the-clock expertise and monitoring for optimal outcomes",
-                    gradientClass: "gradient-2"
-                },
-                {
-                    title: "Specialized Expertise",
-                    content: "Advanced techniques and personalized care approaches",
-                    gradientClass: "gradient-3"
-                }
-            ],
-            question: {
-                title: "A 1-month-old infant with projectile vomiting, inability to tolerate feeds, sunken fontanelles, and dry diapers is diagnosed with pyloric stenosis and severe dehydration. Which of the following MOST accurately describes a physiologic change that maintains adequate blood pressure and renal perfusion in the context of this patient's clinical condition?",
-                options: [
-                    "A. Increased parasympathetic tone",
-                    "B. Decreased sodium reabsorption at the renal tubule",
-                    "C. Decreased secretion of arginine vasopressin by the pituitary gland",
-                    "D. Increased secretion of renin by the juxtaglomerular cells"
-                ]
-            },
-            case: {
-                title: "Successful Management of Complex Airway",
-                content: "Last week, our team successfully managed a challenging case involving a patient with a difficult airway presentation. The case required careful planning and implementation of advanced airway management techniques. Through teamwork and expertise, we achieved optimal outcomes while ensuring patient safety and comfort throughout the procedure.",
-                outcome: "The patient recovered well with no complications and was discharged on schedule."
-            }
-        };
-
         // Mobile menu toggle function
         function toggleMenu() {
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
         }
-
-        // Initialize everything when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            // Render hero slides
+    
+        // Function to fetch and parse API response
+        async function fetchSiteContent() {
+            try {
+                const response = await fetch("https://sheetdb.io/api/v1/1vjwrztzyxa3y");
+                const data = await response.json();
+    
+                // Parse the hero section
+                const heroData = JSON.parse(`[${data[0].join(",")}]`);
+                const questionData = {
+                    title: data[1][0],
+                    options: JSON.parse(data[1][1])
+                };
+                const caseData = {
+                    title: data[2][0],
+                    content: data[2][1],
+                    outcome: data[2][2]
+                };
+    
+                // Populate the content
+                populateHero(heroData);
+                populateQuestion(questionData);
+                populateCase(caseData);
+            } catch (error) {
+                console.error("Error fetching site content:", error);
+            }
+        }
+    
+        // Function to populate hero slides
+        function populateHero(hero) {
             const heroSlides = document.getElementById('hero-slides');
-            heroSlides.innerHTML = window.siteContent.hero.map(slide => `
+            heroSlides.innerHTML = hero.map(slide => `
                 <div class="swiper-slide relative ${slide.gradientClass}">
                     <div class="slide-overlay"></div>
                     <div class="slide-content h-full flex items-center justify-center text-white text-center">
@@ -64,7 +55,7 @@
                     </div>
                 </div>
             `).join('');
-
+    
             // Initialize Swiper
             new Swiper(".mySwiper", {
                 loop: true,
@@ -77,25 +68,34 @@
                     clickable: true,
                 },
             });
-
-            // Render question content
+        }
+    
+        // Function to populate question content
+        function populateQuestion(question) {
             document.getElementById('question-content').innerHTML = `
-                <h3 class="text-xl font-semibold mb-6">${window.siteContent.question.title}</h3>
+                <h3 class="text-xl font-semibold mb-6">${question.title}</h3>
                 <div class="space-y-4">
-                    ${window.siteContent.question.options.map(option => 
+                    ${question.options.map(option => 
                         `<div class="p-3 bg-white rounded shadow-sm hover:bg-gray-50 transition cursor-pointer">
                             ${option}
                         </div>`
                     ).join('')}
                 </div>
             `;
-
-            // Render case content
+        }
+    
+        // Function to populate case content
+        function populateCase(caseData) {
             document.getElementById('case-content').innerHTML = `
-                <h3 class="text-xl font-semibold mb-4">${window.siteContent.case.title}</h3>
-                <p class="mb-4 text-gray-700">${window.siteContent.case.content}</p>
-                <p class="text-green-600 font-medium">${window.siteContent.case.outcome}</p>
+                <h3 class="text-xl font-semibold mb-4">${caseData.title}</h3>
+                <p class="mb-4 text-gray-700">${caseData.content}</p>
+                <p class="text-green-600 font-medium">${caseData.outcome}</p>
             `;
+        }
+    
+        // Initialize everything when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchSiteContent();
         });
     </script>
     <style>
